@@ -7,8 +7,7 @@ import Academy from './components/Academy';
 import Forum from './components/Forum';
 import Challenges from './components/Challenges';
 import Ranking from './components/Ranking';
-import Ranking from './components/Ranking';
-import AddMaterialModal from './components/AddMaterialModal'; // AÑADE ESTA LÍNEA AQUÍ
+import AddMaterialModal from './components/AddMaterialModal'; 
 
 const CURRENT_USER_ID = "JP";
 
