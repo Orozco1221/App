@@ -7,6 +7,8 @@ import Academy from './components/Academy';
 import Forum from './components/Forum';
 import Challenges from './components/Challenges';
 import Ranking from './components/Ranking';
+import Ranking from './components/Ranking';
+import AddMaterialModal from './components/AddMaterialModal'; // AÑADE ESTA LÍNEA AQUÍ
 
 const CURRENT_USER_ID = "JP";
 
@@ -99,6 +101,27 @@ const App = () => {
     }));
   };
 
+  // --- FUNCIONES RECUPERADAS PARA ACADEMY ---
+  const suggestDescription = async (title, setDesc) => {
+    if (!title.trim()) return;
+    setIsAiLoading(true);
+    const res = await callGemini(`Genera una descripción profesional de 2 líneas para un curso corporativo llamado: "${title}"`, "Directo y profesional.");
+    setDesc(res); 
+    setIsAiLoading(false);
+  };
+
+  const addItem = (category, newItem) => {
+    if (!category) return;
+    setContent(prev => ({ 
+      ...prev, 
+      [category]: [...prev[category], { 
+        ...newItem, id: Date.now(), instructor: 'JP', points: 50, duration: 'NUEVO', views: '0', shortDesc: newItem.description ? newItem.description.substring(0, 50) + '...' : 'Nueva formación.'
+      }] 
+    }));
+    setShowAddModal(false);
+    setTargetCategory(null);
+  };
+  
   // --- COMPONENTES UI AUXILIARES ---
   const NavItem = ({ id, icon: Icon, label }) => (
     <button onClick={() => setActiveTab(id)} className={`flex flex-col items-center p-3 transition-all ${activeTab === id ? 'text-[#3b82f6] border-b-2 border-[#3b82f6] font-black' : 'text-[#94a3b8] hover:text-[#3b82f6]'}`}>
@@ -109,7 +132,18 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-slate-900 overflow-x-hidden relative">
-      
+    
+    {/* MODALES FLOTANTES */}
+      {showAddModal && (
+        <AddMaterialModal 
+          category={targetCategory} 
+          onClose={() => setShowAddModal(false)} 
+          onAdd={addItem} 
+          suggestDescription={suggestDescription} 
+          isAiLoading={isAiLoading} 
+        />
+      )}
+    
       {/* HEADER FIJO */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 h-20 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
