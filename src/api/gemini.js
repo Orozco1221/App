@@ -1,29 +1,30 @@
-// src/api/gemini.js
-// Aquí gestionamos toda la conexión con la IA de forma segura y centralizada.
+// src/api/gemini.js — refactorizado PR #1
+import { GEMINI_MODEL_NAME, GEMINI_MAX_RETRIES } from '../constants';
 
-const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
-// En el futuro, esta key vendrá de un archivo .env oculto
-const apiKey = ""; 
+const apiKey = process.env.REACT_APP_GEMINI_KEY ?? "";
 
 export const callGemini = async (prompt, systemInstruction = "", retries = 0) => {
+  if (!apiKey) {
+    console.warn("[callGemini] Define REACT_APP_GEMINI_KEY en tu .env");
+    return "Error: API key no configurada.";
+  }
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
-      })
-    });
-    
-    if (!response.ok) throw new Error('API Error');
-    
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL_NAME}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined,
+        }),
+      }
+    );
+    if (!response.ok) throw new Error(`API Error: ${response.status}`);
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
   } catch (err) {
-    if (retries < 5) {
-      // Exponential backoff: espera progresiva antes de reintentar
+    if (retries < GEMINI_MAX_RETRIES) {
       await new Promise(res => setTimeout(res, Math.pow(2, retries) * 1000));
       return callGemini(prompt, systemInstruction, retries + 1);
     }
