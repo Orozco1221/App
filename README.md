@@ -48,7 +48,8 @@ El proyecto combina un sistema de gestión de aprendizaje (LMS) con herramientas
 Instalar dependencias:
 
 Bash
-npm install
+  npm install
+
 Configurar API Key:
 Localiza la constante apiKey en App.js y pega tu clave de Google AI Studio.
 (Nota: En producción, se recomienda mover esto a un archivo .env o un Proxy/Backend).
@@ -56,7 +57,8 @@ Localiza la constante apiKey en App.js y pega tu clave de Google AI Studio.
 Iniciar el servidor de desarrollo:
 
 Bash
-npm start
+  npm start
+
 🏗️ Arquitectura del Código
 El código sigue una estructura de Componente Único Funcional para este MVP, priorizando la legibilidad y la rapidez de iteración:
 
