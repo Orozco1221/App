@@ -45,3 +45,34 @@ El proyecto combina un sistema de gestión de aprendizaje (LMS) con herramientas
 1. **Clonar el repositorio:**
    ```bash
    git clone [url-del-repo]
+Instalar dependencias:
+
+Bash
+npm install
+Configurar API Key:
+Localiza la constante apiKey en App.js y pega tu clave de Google AI Studio.
+(Nota: En producción, se recomienda mover esto a un archivo .env o un Proxy/Backend).
+
+Iniciar el servidor de desarrollo:
+
+Bash
+npm start
+🏗️ Arquitectura del Código
+El código sigue una estructura de Componente Único Funcional para este MVP, priorizando la legibilidad y la rapidez de iteración:
+
+Gestión de Estado: Uso intensivo de useState y useEffect para la reactividad de la UI.
+
+Persistencia Simulada: Se utiliza un objeto content centralizado (Mock Data) que permite una migración sencilla a una base de datos real (PostgreSQL/MongoDB).
+
+Lógica de Reintento: Implementación de Exponential Backoff en la función callGemini para manejar límites de cuota o errores de red.
+
+🎯 Próximos Pasos (Roadmap)
+[ ] Persistencia: Integración con Firebase o Supabase para base de datos y autenticación (SSO Empresa).
+
+[ ] Backend de Seguridad: Mover las llamadas a la API a un servidor Node.js para proteger la API Key.
+
+[ ] Dashboard de Admin: Interfaz para que RRHH pueda subir nuevos materiales y ver métricas de adopción.
+
+[ ] Multilenguaje: Soporte completo para diferentes regiones de la compañía.
+
+Desarrollado como iniciativa personal para la transformación digital en Randstad Digital.
