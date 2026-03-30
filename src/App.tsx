@@ -1,9 +1,10 @@
-// src/App.js - VERSION PR #4
+// src/App.tsx - VERSION PR #4
 // Integra ErrorBoundary en cada seccion de la app.
 // Si una seccion falla, las demas siguen funcionando.
 
 import React, { useState } from "react";
 import { BookOpen, MessageCircle, Trophy, BarChart3 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { callGemini } from "./api/gemini";
 import Academy from "./components/Academy";
@@ -15,24 +16,31 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 import { CURRENT_USER_ID, DEFAULT_ITEM_POINTS } from "./constants";
 import { initialContent } from "./data/mockData";
+import type { InitialContent, ContentItem } from "./data/mockData";
 
 import { useChallenge } from "./hooks/useChallenge";
 import { useRanking } from "./hooks/useRanking";
 import { useForum } from "./hooks/useForum";
 
+interface NavItemProps {
+  id: string;
+  icon: LucideIcon;
+  label: string;
+}
+
 const App = () => {
   const [activeTab, setActiveTab] = useState("courses");
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState<{ data: ContentItem; cat: string } | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [targetCategory, setTargetCategory] = useState(null);
+  const [targetCategory, setTargetCategory] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [content, setContent] = useState(initialContent);
+  const [content, setContent] = useState<InitialContent>(initialContent);
 
   const challenge = useChallenge();
   const ranking   = useRanking(content.ranking);
   const forum     = useForum(content.forumThreads);
 
-  const suggestDescription = async (title, setDesc) => {
+  const suggestDescription = async (title: string, setDesc: (desc: string) => void) => {
     if (!title.trim()) return;
     setIsAiLoading(true);
     const res = await callGemini(
@@ -43,12 +51,12 @@ const App = () => {
     setIsAiLoading(false);
   };
 
-  const addItem = (category, newItem) => {
+  const addItem = (category: string | null, newItem: { title: string; description: string; mediaUrl: string; mediaType: string }) => {
     if (!category) return;
     setContent(prev => ({
       ...prev,
       [category]: [
-        ...prev[category],
+        ...(prev[category as keyof typeof prev] as ContentItem[]),
         {
           ...newItem,
           id: Date.now(),
@@ -66,7 +74,7 @@ const App = () => {
     setTargetCategory(null);
   };
 
-  const NavItem = ({ id, icon: Icon, label }) => (
+  const NavItem = ({ id, icon: Icon, label }: NavItemProps) => (
     <button
       onClick={() => setActiveTab(id)}
       aria-current={activeTab === id ? "page" : undefined}

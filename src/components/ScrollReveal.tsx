@@ -1,9 +1,15 @@
-// src/components/ScrollReveal.js
+// src/components/ScrollReveal.tsx
 import React, { useState, useEffect, useRef } from 'react';
 
-export const ScrollReveal = ({ children, delay = 0, direction = 'up' }) => {
+interface Props {
+  children: React.ReactNode;
+  delay?: number;
+  direction?: 'up' | 'left' | 'right' | 'none';
+}
+
+export const ScrollReveal: React.FC<Props> = ({ children, delay = 0, direction = 'up' }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const domRef = useRef();
+  const domRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(entries => {

@@ -1,10 +1,23 @@
-// src/components/Ranking.js - PR #4: PropTypes
+// src/components/Ranking.tsx
 import React from "react";
-import PropTypes from "prop-types";
 import { Medal, Crown, Lightbulb, ArrowUp, ChevronRight, Sparkles } from "lucide-react";
 import { ScrollReveal } from "./ScrollReveal";
+import type { RankedUser } from "../hooks/useRanking";
 
-const Ranking = ({
+interface Props {
+  sortedRanking: RankedUser[];
+  myIndex: number;
+  podiumUsers: RankedUser[];
+  getDisplayRanking: () => RankedUser[];
+  showAllRanking: boolean;
+  setShowAllRanking: (show: boolean) => void;
+  askMentor: () => Promise<void>;
+  isAiLoading: boolean;
+  mentorResponse: string;
+  CURRENT_USER_ID: string;
+}
+
+const Ranking: React.FC<Props> = ({
   sortedRanking, myIndex, podiumUsers, getDisplayRanking,
   showAllRanking, setShowAllRanking, askMentor,
   isAiLoading, mentorResponse, CURRENT_USER_ID
@@ -156,28 +169,6 @@ const Ranking = ({
       </div>
     </div>
   );
-};
-
-Ranking.propTypes = {
-  sortedRanking: PropTypes.arrayOf(
-    PropTypes.shape({
-      id:       PropTypes.string.isRequired,
-      name:     PropTypes.string.isRequired,
-      points:   PropTypes.number.isRequired,
-      tier:     PropTypes.string.isRequired,
-      avatar:   PropTypes.string.isRequired,
-      position: PropTypes.number.isRequired,
-    })
-  ).isRequired,
-  myIndex:          PropTypes.number.isRequired,
-  podiumUsers:      PropTypes.array.isRequired,
-  getDisplayRanking: PropTypes.func.isRequired,
-  showAllRanking:   PropTypes.bool.isRequired,
-  setShowAllRanking: PropTypes.func.isRequired,
-  askMentor:        PropTypes.func.isRequired,
-  isAiLoading:      PropTypes.bool.isRequired,
-  mentorResponse:   PropTypes.string.isRequired,
-  CURRENT_USER_ID:  PropTypes.string.isRequired,
 };
 
 export default Ranking;

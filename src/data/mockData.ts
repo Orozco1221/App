@@ -1,7 +1,78 @@
-// src/data/mockData.js
+// src/data/mockData.ts
 // Datos de ejemplo separados de App.js para poder testarlos de forma independiente.
 
-export const initialContent = {
+import type { Thread } from "../utils/likeThread";
+export type { Thread };
+
+export interface ForumThread extends Thread {
+  title: string;
+  body: string;
+  user: string;
+  avatar: string;
+  category: string;
+  comments: number;
+  date: string;
+  replies: unknown[];
+}
+
+export interface User {
+  id: string;
+  name: string;
+  points: number;
+  tier: string;
+  avatar: string;
+}
+
+export interface Challenge {
+  id: number;
+  title: string;
+  objective: string;
+  description: string;
+  deadline?: string;
+  rewardPoints?: number;
+  winner?: string;
+  score?: number;
+  date?: string;
+  bestResponse?: string;
+}
+
+export interface ActiveChallenge {
+  id: number;
+  title: string;
+  objective: string;
+  description: string;
+  deadline: string;
+  rewardPoints: number;
+}
+
+export interface ContentItem {
+  id: number;
+  title: string;
+  description: string;
+  shortDesc: string;
+  mediaType?: string;
+  mediaUrl?: string;
+  duration?: string;
+  instructor?: string;
+  views?: string;
+  level?: string;
+  provider?: string;
+  link?: string;
+  [key: string]: unknown;
+}
+
+export interface InitialContent {
+  cafeteria: ContentItem[];
+  pills: ContentItem[];
+  structural: ContentItem[];
+  externalCerts: ContentItem[];
+  forumThreads: ForumThread[];
+  activeChallenge: ActiveChallenge;
+  pastChallenges: Challenge[];
+  ranking: User[];
+}
+
+export const initialContent: InitialContent = {
   cafeteria: [
     { id: 101, title: "IA y Reclutamiento Ético", duration: "30 min", instructor: "Marta Pérez",
       description: "Explora cómo evitar sesgos algorítmicos.", shortDesc: "Identificación de sesgos.",
