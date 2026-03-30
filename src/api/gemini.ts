@@ -1,9 +1,13 @@
-// src/api/gemini.js — refactorizado PR #1
+// src/api/gemini.ts — refactorizado PR #1
 import { GEMINI_MODEL_NAME, GEMINI_MAX_RETRIES } from '../constants';
 
 const apiKey = process.env.REACT_APP_GEMINI_KEY ?? "";
 
-export const callGemini = async (prompt, systemInstruction = "", retries = 0) => {
+export const callGemini = async (
+  prompt: string,
+  systemInstruction: string = "",
+  retries: number = 0
+): Promise<string> => {
   if (!apiKey) {
     console.warn("[callGemini] Define REACT_APP_GEMINI_KEY en tu .env");
     return "Error: API key no configurada.";
@@ -21,7 +25,9 @@ export const callGemini = async (prompt, systemInstruction = "", retries = 0) =>
       }
     );
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
-    const data = await response.json();
+    const data = await response.json() as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
     return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
   } catch (err) {
     if (retries < GEMINI_MAX_RETRIES) {

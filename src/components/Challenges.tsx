@@ -1,10 +1,23 @@
-// src/components/Challenges.js - PR #4: PropTypes + accesibilidad
+// src/components/Challenges.tsx
 import React from "react";
-import PropTypes from "prop-types";
 import { Clock, Trophy, UploadCloud, Sparkles, Loader2, Star, History, ChevronRight } from "lucide-react";
 import { ScrollReveal } from "./ScrollReveal";
+import type { ActiveChallenge, Challenge } from "../data/mockData";
+import type { Evaluation } from "../utils/parseEvaluation";
 
-const Challenges = ({
+interface Props {
+  activeChallenge: ActiveChallenge;
+  pastChallenges: Challenge[];
+  submissionText: string;
+  setSubmissionText: (text: string) => void;
+  evaluateChallenge: () => Promise<void>;
+  isEvaluating: boolean;
+  evaluation: Evaluation | null;
+  setEvaluation: (e: Evaluation | null) => void;
+  setSelectedPastChallenge: (challenge: Challenge) => void;
+}
+
+const Challenges: React.FC<Props> = ({
   activeChallenge, pastChallenges, submissionText, setSubmissionText,
   evaluateChallenge, isEvaluating, evaluation, setEvaluation, setSelectedPastChallenge
 }) => {
@@ -112,7 +125,7 @@ const Challenges = ({
                 </div>
                 <div className="flex flex-col items-end gap-3">
                   <div className="flex gap-1" aria-label={`Puntuacion ${past.score} de 5`}>
-                    {[1,2,3,4,5].map(i => <Star key={i} size={14} className={i <= past.score ? "text-[#f59e0b] fill-[#f59e0b]" : "text-slate-100"} aria-hidden="true" />)}
+                    {[1,2,3,4,5].map(i => <Star key={i} size={14} className={past.score !== undefined && i <= past.score ? "text-[#f59e0b] fill-[#f59e0b]" : "text-slate-100"} aria-hidden="true" />)}
                   </div>
                   <div className="w-12 h-12 rounded-full bg-[#f8fafc] flex items-center justify-center text-slate-300 group-hover:bg-[#3b82f6] group-hover:text-white transition-all shadow-inner leading-none" aria-hidden="true">
                     <ChevronRight size={24}/>
@@ -125,40 +138,6 @@ const Challenges = ({
       </section>
     </div>
   );
-};
-
-Challenges.propTypes = {
-  activeChallenge: PropTypes.shape({
-    id:           PropTypes.number.isRequired,
-    title:        PropTypes.string.isRequired,
-    objective:    PropTypes.string.isRequired,
-    description:  PropTypes.string.isRequired,
-    deadline:     PropTypes.string.isRequired,
-    rewardPoints: PropTypes.number.isRequired,
-  }).isRequired,
-  pastChallenges: PropTypes.arrayOf(
-    PropTypes.shape({
-      id:     PropTypes.number.isRequired,
-      title:  PropTypes.string.isRequired,
-      winner: PropTypes.string.isRequired,
-      score:  PropTypes.number.isRequired,
-      date:   PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  submissionText:         PropTypes.string.isRequired,
-  setSubmissionText:      PropTypes.func.isRequired,
-  evaluateChallenge:      PropTypes.func.isRequired,
-  isEvaluating:           PropTypes.bool.isRequired,
-  evaluation:             PropTypes.shape({
-    score:    PropTypes.number.isRequired,
-    feedback: PropTypes.string.isRequired,
-  }),
-  setEvaluation:          PropTypes.func.isRequired,
-  setSelectedPastChallenge: PropTypes.func.isRequired,
-};
-
-Challenges.defaultProps = {
-  evaluation: null,
 };
 
 export default Challenges;

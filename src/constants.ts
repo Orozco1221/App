@@ -1,4 +1,4 @@
-// src/constants.js
+// src/constants.ts
 // Valores centralizados — antes estaban "hardcodeados" por toda la app.
 
 export const CURRENT_USER_ID = "JP";
@@ -11,14 +11,18 @@ export const ACADEMY_CATEGORIES = [
   { key: "pills",        label: "TikTok Learning",  description: "Vídeos rápidos con impacto real",     color: "purple" },
   { key: "structural",   label: "Estructurales",    description: "Conocimiento Core Randstad",           color: "blue"   },
   { key: "externalCerts",label: "Certificaciones",  description: "Formación recomendada de mercado",     color: "green"  },
-];
+] as const;
+
+export type AcademyCategory = typeof ACADEMY_CATEGORIES[number];
 
 export const RANKING_TIERS = [
   { name: "AI Beginner",    minPoints: 0    },
   { name: "AI Explorer",    minPoints: 500  },
   { name: "AI Strategist",  minPoints: 1500 },
   { name: "AI Visionary",   minPoints: 2500 },
-];
+] as const;
 
-export const FORUM_CATEGORIES = ["PRODUCTIVIDAD", "CONSULTORÍA", "LEGAL", "HERRAMIENTAS"];
-export const FORUM_FILTERS    = ["trending", "new", "vistos"];
+export type RankingTier = typeof RANKING_TIERS[number];
+
+export const FORUM_CATEGORIES = ["PRODUCTIVIDAD", "CONSULTORÍA", "LEGAL", "HERRAMIENTAS"] as const;
+export const FORUM_FILTERS    = ["trending", "new", "vistos"] as const;

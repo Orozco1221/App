@@ -1,10 +1,22 @@
-// src/components/Academy.js - PR #4: PropTypes + accesibilidad
+// src/components/Academy.tsx
 import React from "react";
-import PropTypes from "prop-types";
 import { Coffee, TrendingUp, Library, ShieldCheck, Plus, ChevronRight, PlayCircle } from "lucide-react";
 import { ScrollReveal } from "./ScrollReveal";
+import type { ContentItem, InitialContent } from "../data/mockData";
 
-const Academy = ({ content, setSelectedItem, setTargetCategory, setShowAddModal }) => {
+interface SelectedItem {
+  data: ContentItem;
+  cat: string;
+}
+
+interface Props {
+  content: InitialContent;
+  setSelectedItem: (item: SelectedItem) => void;
+  setTargetCategory: (cat: string) => void;
+  setShowAddModal: (show: boolean) => void;
+}
+
+const Academy: React.FC<Props> = ({ content, setSelectedItem, setTargetCategory, setShowAddModal }) => {
   return (
     <div className="space-y-16 relative">
       <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: "linear-gradient(#1e2b7a 1px, transparent 1px), linear-gradient(90deg, #1e2b7a 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
@@ -26,7 +38,9 @@ const Academy = ({ content, setSelectedItem, setTargetCategory, setShowAddModal 
                         {cat === "cafeteria" ? "CafeterIA" : cat === "pills" ? "TikTok Learning" : cat === "structural" ? "Estructurales" : "Certificaciones"}
                       </h2>
                       <span className="px-3 py-1 bg-white shadow-inner text-slate-400 text-[9px] font-black rounded-full uppercase tracking-widest leading-none">
-                        {content[cat].length} Unidades
+                        {content[cat as keyof typeof content] && Array.isArray(content[cat as keyof typeof content])
+                          ? (content[cat as keyof typeof content] as ContentItem[]).length
+                          : 0} Unidades
                       </span>
                     </div>
                     <p className="text-xs font-black uppercase mt-2 tracking-[0.2em] opacity-40 italic leading-none">
@@ -45,8 +59,7 @@ const Academy = ({ content, setSelectedItem, setTargetCategory, setShowAddModal 
               </div>
 
               <div className={cat === "pills" ? "flex gap-8 overflow-x-auto pb-10 scrollbar-hide px-2" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"}>
-                {content[cat].map((item) => (
-                  // a11y: div clicable -> role=button + tabIndex + onKeyDown
+                {(content[cat as keyof typeof content] as ContentItem[]).map((item) => (
                   <div
                     key={item.id}
                     onClick={() => setSelectedItem({ data: item, cat })}
@@ -90,19 +103,6 @@ const Academy = ({ content, setSelectedItem, setTargetCategory, setShowAddModal 
       ))}
     </div>
   );
-};
-
-// PropTypes: contrato explicito de lo que este componente espera recibir
-Academy.propTypes = {
-  content: PropTypes.shape({
-    cafeteria:     PropTypes.array.isRequired,
-    pills:         PropTypes.array.isRequired,
-    structural:    PropTypes.array.isRequired,
-    externalCerts: PropTypes.array.isRequired,
-  }).isRequired,
-  setSelectedItem:   PropTypes.func.isRequired,
-  setTargetCategory: PropTypes.func.isRequired,
-  setShowAddModal:   PropTypes.func.isRequired,
 };
 
 export default Academy;

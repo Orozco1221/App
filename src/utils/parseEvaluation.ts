@@ -1,4 +1,4 @@
-// src/utils/parseEvaluation.js
+// src/utils/parseEvaluation.ts
 // ============================================================
 // ¿POR QUÉ EXTRAER ESTA FUNCIÓN?
 // En App.js teníamos este código dentro de evaluateChallenge():
@@ -13,15 +13,20 @@
 // devuelve un objeto. Fácil de testear, fácil de reutilizar.
 // ============================================================
 
+export interface Evaluation {
+  score: number;
+  feedback: string;
+}
+
 /**
  * Parsea la respuesta de texto de Gemini y devuelve una evaluación.
  *
- * @param {string} rawResponse - Texto crudo que devuelve Gemini
- * @returns {{ score: number, feedback: string }} Evaluación parseada
+ * @param rawResponse - Texto crudo que devuelve Gemini
+ * @returns Evaluación parseada
  */
-export function parseEvaluation(rawResponse) {
+export function parseEvaluation(rawResponse: string | null | undefined): Evaluation {
   // Valor por defecto si algo falla
-  const FALLBACK = { score: 3, feedback: "Evaluación completada." };
+  const FALLBACK: Evaluation = { score: 3, feedback: "Evaluación completada." };
 
   // Si no hay respuesta, devolvemos el fallback
   if (!rawResponse || typeof rawResponse !== "string") return FALLBACK;
@@ -33,7 +38,7 @@ export function parseEvaluation(rawResponse) {
     //   ```
     // El .replace() elimina esas marcas antes de parsear.
     const clean = rawResponse.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(clean);
+    const parsed = JSON.parse(clean) as Record<string, unknown>;
 
     // Validamos que el score sea un número entre 0 y 5
     const score = typeof parsed.score === "number"

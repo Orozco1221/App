@@ -1,4 +1,4 @@
-// src/hooks/useChallenge.js
+// src/hooks/useChallenge.ts
 // ================================================================
 // QUE ES UN HOOK CUSTOM?
 // Un hook es una funcion de React que empieza por "use" y puede
@@ -16,10 +16,20 @@
 import { useState } from "react";
 import { callGemini } from "../api/gemini";
 import { parseEvaluation } from "../utils/parseEvaluation";
+import type { Evaluation } from "../utils/parseEvaluation";
 
-export function useChallenge() {
+export interface UseChallengeReturn {
+  submissionText: string;
+  setSubmissionText: (text: string) => void;
+  evaluation: Evaluation | null;
+  setEvaluation: (e: Evaluation | null) => void;
+  isEvaluating: boolean;
+  evaluateChallenge: () => Promise<void>;
+}
+
+export function useChallenge(): UseChallengeReturn {
   const [submissionText, setSubmissionText] = useState("");
-  const [evaluation, setEvaluation] = useState(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
 
   const evaluateChallenge = async () => {

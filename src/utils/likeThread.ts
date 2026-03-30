@@ -1,4 +1,4 @@
-// src/utils/likeThread.js
+// src/utils/likeThread.ts
 // ============================================================
 // ¿QUÉ ES UNA FUNCIÓN PURA?
 // Una función pura es aquella que:
@@ -9,15 +9,22 @@
 // montar la app, solo le pasas datos y compruebas el resultado.
 // ============================================================
 
+export interface Thread {
+  id: number;
+  likes: number;
+  likedBy: string[];
+  [key: string]: unknown;
+}
+
 /**
  * Alterna el like de un usuario en un hilo del foro.
  *
- * @param {Array}  threads       - Lista completa de hilos del foro
- * @param {number} threadId      - ID del hilo al que dar/quitar like
- * @param {string} currentUserId - ID del usuario que hace la acción
- * @returns {Array} Nueva lista de hilos con el like actualizado
+ * @param threads       - Lista completa de hilos del foro
+ * @param threadId      - ID del hilo al que dar/quitar like
+ * @param currentUserId - ID del usuario que hace la acción
+ * @returns Nueva lista de hilos con el like actualizado
  */
-export function likeThread(threads, threadId, currentUserId) {
+export function likeThread<T extends Thread>(threads: T[], threadId: number, currentUserId: string): T[] {
   // Recorremos todos los hilos
   return threads.map(thread => {
     // Si no es el hilo que buscamos, lo devolvemos sin cambios

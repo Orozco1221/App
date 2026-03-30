@@ -1,22 +1,29 @@
-// src/components/AddMaterialModal.js - PR #4: PropTypes + accesibilidad
+// src/components/AddMaterialModal.tsx
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import { X, Sparkles, Paperclip } from "lucide-react";
 
-const AddMaterialModal = ({ category, onClose, onAdd, suggestDescription, isAiLoading }) => {
+interface Props {
+  category: string | null;
+  onClose: () => void;
+  onAdd: (category: string | null, item: { title: string; description: string; mediaUrl: string; mediaType: string }) => void;
+  suggestDescription: (title: string, setDesc: (desc: string) => void) => void;
+  isAiLoading: boolean;
+}
+
+const AddMaterialModal: React.FC<Props> = ({ category, onClose, onAdd, suggestDescription, isAiLoading }) => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [url, setUrl] = useState("");
   const [type, setType] = useState("video");
   const [fileName, setFileName] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onAdd(category, { title, description: desc, mediaUrl: url, mediaType: type });
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
       const fakeUrl = URL.createObjectURL(file);
@@ -113,18 +120,6 @@ const AddMaterialModal = ({ category, onClose, onAdd, suggestDescription, isAiLo
       </form>
     </div>
   );
-};
-
-AddMaterialModal.propTypes = {
-  category:           PropTypes.string,
-  onClose:            PropTypes.func.isRequired,
-  onAdd:              PropTypes.func.isRequired,
-  suggestDescription: PropTypes.func.isRequired,
-  isAiLoading:        PropTypes.bool.isRequired,
-};
-
-AddMaterialModal.defaultProps = {
-  category: null,
 };
 
 export default AddMaterialModal;

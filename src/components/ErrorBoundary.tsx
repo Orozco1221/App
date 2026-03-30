@@ -1,15 +1,9 @@
-// src/components/ErrorBoundary.js
+// src/components/ErrorBoundary.tsx
 // ================================================================
 // QUE ES UN ERROR BOUNDARY?
 // Es un componente especial de React que "atrapa" los errores
 // que ocurren en sus componentes hijos, evitando que la pantalla
 // quede completamente en blanco.
-//
-// SIN ErrorBoundary: si Gemini devuelve algo raro y el componente
-// de Retos explota, TODA la app muestra una pantalla en blanco.
-//
-// CON ErrorBoundary: el error queda aislado en su seccion.
-// El resto de la app (Academy, Foro, Ranking) sigue funcionando.
 //
 // Por que es una CLASS y no una funcion?
 // React solo permite ErrorBoundaries como clases porque necesita
@@ -18,33 +12,37 @@
 // ================================================================
 
 import React from "react";
-import PropTypes from "prop-types";
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+interface Props {
+  children: React.ReactNode;
+  sectionName?: string;
+  fallback?: React.ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  errorMessage: string;
+}
+
+class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
-    // hasError: true cuando se ha capturado un error
     this.state = { hasError: false, errorMessage: "" };
   }
 
-  // React llama a este metodo cuando un hijo lanza un error.
-  // Debe devolver el nuevo estado del componente.
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
       errorMessage: error?.message || "Error desconocido",
     };
   }
 
-  // Se ejecuta despues de capturar el error.
-  // Ideal para enviarlo a un sistema de monitorizacion (Sentry, etc.)
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.error("[ErrorBoundary] Error capturado:", error, errorInfo);
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
-      // Mostramos el fallback personalizado o uno generico
       if (this.props.fallback) {
         return this.props.fallback;
       }
@@ -79,19 +77,5 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-ErrorBoundary.propTypes = {
-  // Los componentes hijos que envuelve
-  children: PropTypes.node.isRequired,
-  // Nombre de la seccion para el mensaje de error (opcional)
-  sectionName: PropTypes.string,
-  // Componente de fallback personalizado (opcional)
-  fallback: PropTypes.node,
-};
-
-ErrorBoundary.defaultProps = {
-  sectionName: "",
-  fallback: null,
-};
 
 export default ErrorBoundary;

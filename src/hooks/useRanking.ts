@@ -1,4 +1,4 @@
-// src/hooks/useRanking.js
+// src/hooks/useRanking.ts
 // ================================================================
 // Este hook gestiona todo lo relacionado con el Ranking:
 // - Ordenar los usuarios por puntos
@@ -10,14 +10,31 @@
 import { useState, useMemo } from "react";
 import { callGemini } from "../api/gemini";
 import { CURRENT_USER_ID } from "../constants";
+import type { User } from "../data/mockData";
 
-export function useRanking(rankingData) {
+export interface RankedUser extends User {
+  position: number;
+}
+
+export interface UseRankingReturn {
+  sortedRanking: RankedUser[];
+  myIndex: number;
+  podiumUsers: RankedUser[];
+  getDisplayRanking: () => RankedUser[];
+  showAllRanking: boolean;
+  setShowAllRanking: (show: boolean) => void;
+  askMentor: () => Promise<void>;
+  isAiLoading: boolean;
+  mentorResponse: string;
+}
+
+export function useRanking(rankingData: User[]): UseRankingReturn {
   const [showAllRanking, setShowAllRanking] = useState(false);
   const [mentorResponse, setMentorResponse] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   // useMemo recalcula sortedRanking solo cuando cambia rankingData
-  const sortedRanking = useMemo(() => {
+  const sortedRanking = useMemo<RankedUser[]>(() => {
     return [...rankingData]
       .sort((a, b) => b.points - a.points)
       .map((user, index) => ({ ...user, position: index + 1 }));
@@ -26,7 +43,7 @@ export function useRanking(rankingData) {
   const myIndex = sortedRanking.findIndex(u => u.id === CURRENT_USER_ID);
   const podiumUsers = sortedRanking.slice(0, 3);
 
-  const getDisplayRanking = () => {
+  const getDisplayRanking = (): RankedUser[] => {
     if (showAllRanking) return sortedRanking;
     const start = Math.max(0, myIndex - 2);
     const end = Math.min(sortedRanking.length, myIndex + 3);

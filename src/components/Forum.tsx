@@ -1,10 +1,20 @@
-// src/components/Forum.js - PR #4: PropTypes + accesibilidad
+// src/components/Forum.tsx
 import React from "react";
-import PropTypes from "prop-types";
 import { Plus, ThumbsUp, MessageCircle } from "lucide-react";
 import { ScrollReveal } from "./ScrollReveal";
+import type { ForumThread } from "../data/mockData";
 
-const Forum = ({
+interface Props {
+  forumThreads: ForumThread[];
+  forumCategory: string;
+  setForumCategory: (cat: string) => void;
+  setSelectedThreadId: (id: number | null) => void;
+  likeThread: (threadId: number) => void;
+  CURRENT_USER_ID: string;
+  setShowAddThreadModal: (show: boolean) => void;
+}
+
+const Forum: React.FC<Props> = ({
   forumThreads, forumCategory, setForumCategory,
   setSelectedThreadId, likeThread, CURRENT_USER_ID, setShowAddThreadModal
 }) => {
@@ -30,7 +40,6 @@ const Forum = ({
             <div className="bg-white p-8 rounded-[1.5rem] shadow-sm h-fit">
               <h3 className="text-[10px] font-black uppercase text-[#94a3b8] tracking-[0.2em] mb-6 leading-none">Categorias</h3>
               {["PRODUCTIVIDAD", "CONSULTORIA", "LEGAL", "HERRAMIENTAS"].map(cat => (
-                // a11y: div clicable -> role=button + tabIndex + onKeyDown
                 <div
                   key={cat}
                   onClick={() => setForumCategory(cat.toLowerCase())}
@@ -63,7 +72,7 @@ const Forum = ({
           </div>
 
           <div className="space-y-6">
-            {forumThreads.map((thread, idx) => (
+            {forumThreads.map((thread: ForumThread, idx: number) => (
               <ScrollReveal key={thread.id} direction="up" delay={idx * 100}>
                 <div
                   onClick={() => setSelectedThreadId(thread.id)}
@@ -107,28 +116,6 @@ const Forum = ({
       </div>
     </div>
   );
-};
-
-Forum.propTypes = {
-  forumThreads: PropTypes.arrayOf(
-    PropTypes.shape({
-      id:       PropTypes.number.isRequired,
-      title:    PropTypes.string.isRequired,
-      user:     PropTypes.string.isRequired,
-      avatar:   PropTypes.string.isRequired,
-      category: PropTypes.string.isRequired,
-      likes:    PropTypes.number.isRequired,
-      comments: PropTypes.number.isRequired,
-      date:     PropTypes.string.isRequired,
-      likedBy:  PropTypes.arrayOf(PropTypes.string).isRequired,
-    })
-  ).isRequired,
-  forumCategory:         PropTypes.string.isRequired,
-  setForumCategory:      PropTypes.func.isRequired,
-  setSelectedThreadId:   PropTypes.func.isRequired,
-  likeThread:            PropTypes.func.isRequired,
-  CURRENT_USER_ID:       PropTypes.string.isRequired,
-  setShowAddThreadModal:  PropTypes.func.isRequired,
 };
 
 export default Forum;
