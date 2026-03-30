@@ -2,8 +2,8 @@
 // Integra ErrorBoundary en cada seccion de la app.
 // Si una seccion falla, las demas siguen funcionando.
 
-import React, { useState } from "react";
-import { BookOpen, MessageCircle, Trophy, BarChart3 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { BookOpen, MessageCircle, Trophy, BarChart3, Loader2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { callGemini } from "./api/gemini";
@@ -12,11 +12,13 @@ import Forum from "./components/Forum";
 import Challenges from "./components/Challenges";
 import Ranking from "./components/Ranking";
 import AddMaterialModal from "./components/AddMaterialModal";
+import ContentViewer from "./components/ContentViewer";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 import { CURRENT_USER_ID, DEFAULT_ITEM_POINTS } from "./constants";
 import { initialContent } from "./data/mockData";
 import type { InitialContent, ContentItem } from "./data/mockData";
+import { fetchAcademyContent, addAcademyItem } from "./api/academyApi";
 
 import { useChallenge } from "./hooks/useChallenge";
 import { useRanking } from "./hooks/useRanking";
@@ -35,6 +37,25 @@ const App = () => {
   const [targetCategory, setTargetCategory] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [content, setContent] = useState<InitialContent>(initialContent);
+  const [isContentLoading, setIsContentLoading] = useState(false);
+
+  // Carga inicial desde Supabase — se ejecuta una sola vez al montar la app
+  useEffect(() => {
+    setIsContentLoading(true);
+    fetchAcademyContent()
+      .then(dbContent => {
+        // Solo mergea si hay datos en BD; si está vacía mantiene el mockData
+        const hasData =
+          dbContent.cafeteria.length     > 0 ||
+          dbContent.pills.length         > 0 ||
+          dbContent.structural.length    > 0 ||
+          dbContent.externalCerts.length > 0;
+        if (hasData) {
+          setContent(prev => ({ ...prev, ...dbContent }));
+        }
+      })
+      .finally(() => setIsContentLoading(false));
+  }, []);
 
   const challenge = useChallenge();
   const ranking   = useRanking(content.ranking);
@@ -51,25 +72,46 @@ const App = () => {
     setIsAiLoading(false);
   };
 
-  const addItem = (category: string | null, newItem: { title: string; description: string; mediaUrl: string; mediaType: string }) => {
+  const addItem = async (
+    category: string | null,
+    newItem: { title: string; description: string; mediaUrl: string; mediaType: string },
+    file?: File | null,
+  ) => {
     if (!category) return;
-    setContent(prev => ({
-      ...prev,
-      [category]: [
-        ...(prev[category as keyof typeof prev] as ContentItem[]),
-        {
-          ...newItem,
-          id: Date.now(),
-          instructor: CURRENT_USER_ID,
-          points: DEFAULT_ITEM_POINTS,
-          duration: "NUEVO",
-          views: "0",
-          shortDesc: newItem.description
-            ? newItem.description.substring(0, 50) + "..."
-            : "Nueva formacion.",
-        },
-      ],
-    }));
+
+    // Intentar guardar en Supabase
+    const saved = await addAcademyItem(category, newItem, file ?? undefined);
+
+    if (saved) {
+      // Usar el item guardado (con UUID real de la BD)
+      setContent(prev => ({
+        ...prev,
+        [category]: [
+          ...(prev[category as keyof typeof prev] as ContentItem[]),
+          saved,
+        ],
+      }));
+    } else {
+      // Fallback: guardar solo en memoria si Supabase falla
+      setContent(prev => ({
+        ...prev,
+        [category]: [
+          ...(prev[category as keyof typeof prev] as ContentItem[]),
+          {
+            ...newItem,
+            id: Date.now(),
+            instructor: CURRENT_USER_ID,
+            points: DEFAULT_ITEM_POINTS,
+            duration: "NUEVO",
+            views: "0",
+            shortDesc: newItem.description
+              ? newItem.description.substring(0, 50) + "..."
+              : "Nueva formacion.",
+          },
+        ],
+      }));
+    }
+
     setShowAddModal(false);
     setTargetCategory(null);
   };
@@ -102,6 +144,14 @@ const App = () => {
         />
       )}
 
+      {selectedItem && (
+        <ContentViewer
+          item={selectedItem.data}
+          category={selectedItem.cat}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
+
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 h-20 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-blue-600 rounded-xl text-white flex items-center justify-center font-black" aria-hidden="true">R</div>
@@ -123,12 +173,19 @@ const App = () => {
 
         {activeTab === "courses" && (
           <ErrorBoundary sectionName="Academy">
-            <Academy
-              content={content}
-              setSelectedItem={setSelectedItem}
-              setTargetCategory={setTargetCategory}
-              setShowAddModal={setShowAddModal}
-            />
+            {isContentLoading ? (
+              <div className="flex flex-col items-center justify-center py-32 gap-4 text-[#1e2b7a]">
+                <Loader2 size={36} className="animate-spin opacity-50" />
+                <p className="text-xs font-black uppercase tracking-widest opacity-40">Cargando Academy…</p>
+              </div>
+            ) : (
+              <Academy
+                content={content}
+                setSelectedItem={setSelectedItem}
+                setTargetCategory={setTargetCategory}
+                setShowAddModal={setShowAddModal}
+              />
+            )}
           </ErrorBoundary>
         )}
 
