@@ -1,15 +1,17 @@
-// src/hooks/__tests__/useRanking.test.js
+// src/hooks/__tests__/useRanking.test.ts
 
 import { renderHook, act } from "@testing-library/react";
 import { useRanking } from "../useRanking";
+import type { User } from "../../data/mockData";
 
 jest.mock("../../api/gemini", () => ({
   callGemini: jest.fn().mockResolvedValue("Aqui van tus consejos de mentor"),
 }));
 import { callGemini } from "../../api/gemini";
+const mockCallGemini = callGemini as jest.MockedFunction<typeof callGemini>;
 
 // Datos sin ordenar a proposito para probar el sorting
-const RANKING_DATA = [
+const RANKING_DATA: User[] = [
   { id: "3",  name: "Marta Soto",   points: 1500, tier: "AI Explorer",   avatar: "MS" },
   { id: "JP", name: "Juan Perez",   points: 1850, tier: "AI Explorer",   avatar: "JP" },
   { id: "1",  name: "Ana Martinez", points: 2850, tier: "AI Visionary",  avatar: "AM" },
@@ -79,8 +81,8 @@ describe("useRanking()", () => {
   it("askMentor llama a callGemini con la posicion y XP del usuario actual", async () => {
     const { result } = renderHook(() => useRanking(RANKING_DATA));
     await act(async () => { await result.current.askMentor(); });
-    expect(callGemini).toHaveBeenCalledTimes(1);
-    const prompt = callGemini.mock.calls[0][0];
+    expect(mockCallGemini).toHaveBeenCalledTimes(1);
+    const prompt = mockCallGemini.mock.calls[0][0];
     expect(prompt).toContain("3");
     expect(prompt).toContain("1850");
   });

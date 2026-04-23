@@ -1,9 +1,10 @@
-// src/hooks/__tests__/useForum.test.js
+// src/hooks/__tests__/useForum.test.ts
 
 import { renderHook, act } from "@testing-library/react";
 import { useForum } from "../useForum";
+import type { ForumThread } from "../../data/mockData";
 
-const THREADS_BASE = [
+const THREADS_BASE: ForumThread[] = [
   {
     id: 1,
     title: "Como usar ChatGPT en reclutamiento",
@@ -44,7 +45,7 @@ describe("useForum()", () => {
   it("handleLike anade like si el usuario no habia dado like antes", () => {
     const { result } = renderHook(() => useForum(THREADS_BASE));
     act(() => { result.current.handleLike(1); });
-    const hilo1 = result.current.threads.find(t => t.id === 1);
+    const hilo1 = result.current.threads.find(t => t.id === 1)!;
     expect(hilo1.likes).toBe(16);
     expect(hilo1.likedBy).toContain("JP");
   });
@@ -52,7 +53,7 @@ describe("useForum()", () => {
   it("handleLike quita el like si el usuario ya habia dado like", () => {
     const { result } = renderHook(() => useForum(THREADS_BASE));
     act(() => { result.current.handleLike(2); });
-    const hilo2 = result.current.threads.find(t => t.id === 2);
+    const hilo2 = result.current.threads.find(t => t.id === 2)!;
     expect(hilo2.likes).toBe(7);
     expect(hilo2.likedBy).not.toContain("JP");
   });
@@ -60,7 +61,7 @@ describe("useForum()", () => {
   it("handleLike solo modifica el hilo con el ID correcto", () => {
     const { result } = renderHook(() => useForum(THREADS_BASE));
     act(() => { result.current.handleLike(1); });
-    const hilo2 = result.current.threads.find(t => t.id === 2);
+    const hilo2 = result.current.threads.find(t => t.id === 2)!;
     expect(hilo2.likes).toBe(8);
   });
 
@@ -68,7 +69,7 @@ describe("useForum()", () => {
     const { result } = renderHook(() => useForum(THREADS_BASE));
     act(() => { result.current.handleLike(1); });
     act(() => { result.current.handleLike(1); });
-    const hilo1 = result.current.threads.find(t => t.id === 1);
+    const hilo1 = result.current.threads.find(t => t.id === 1)!;
     const aparicionesJP = hilo1.likedBy.filter(uid => uid === "JP");
     expect(aparicionesJP).toHaveLength(0);
     expect(hilo1.likes).toBe(15);

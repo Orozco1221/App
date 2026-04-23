@@ -1,4 +1,4 @@
-// src/utils/__tests__/likeThread.test.js
+// src/utils/__tests__/likeThread.test.ts
 // ============================================================
 // ¿QUÉ TESTEAMOS AQUÍ?
 // La lógica de dar y quitar likes en el foro.
@@ -11,10 +11,11 @@
 // ============================================================
 
 import { likeThread } from '../likeThread';
+import type { Thread } from '../likeThread';
 
 // Datos de ejemplo que usaremos en todos los tests.
 // Los definimos aquí arriba para no repetirlos en cada test.
-const THREADS_BASE = [
+const THREADS_BASE: Thread[] = [
   {
     id: 1,
     title: 'Hilo de prueba',
@@ -36,7 +37,7 @@ describe('likeThread()', () => {
   // ── Test 1: Dar like ─────────────────────────────────────────
   it('añade el like cuando el usuario NO había dado like antes', () => {
     const resultado = likeThread(THREADS_BASE, 1, USER_ID);
-    const hiloActualizado = resultado.find(t => t.id === 1);
+    const hiloActualizado = resultado.find(t => t.id === 1)!;
 
     // Los likes deben haber subido de 15 a 16
     expect(hiloActualizado.likes).toBe(16);
@@ -49,7 +50,7 @@ describe('likeThread()', () => {
   it('quita el like cuando el usuario YA había dado like', () => {
     // El hilo 2 ya tiene like de JP
     const resultado = likeThread(THREADS_BASE, 2, USER_ID);
-    const hiloActualizado = resultado.find(t => t.id === 2);
+    const hiloActualizado = resultado.find(t => t.id === 2)!;
 
     // Los likes deben haber bajado de 5 a 4
     expect(hiloActualizado.likes).toBe(4);
@@ -67,7 +68,7 @@ describe('likeThread()', () => {
     // Segunda llamada: JP intenta dar like de nuevo al mismo hilo
     const segundaVez = likeThread(primeraVez, 1, USER_ID);
 
-    const hilo = segundaVez.find(t => t.id === 1);
+    const hilo = segundaVez.find(t => t.id === 1)!;
 
     // Después de dar like y quitarlo, los likes vuelven a 15
     expect(hilo.likes).toBe(15);
@@ -92,11 +93,11 @@ describe('likeThread()', () => {
     const resultado = likeThread(THREADS_BASE, 1, USER_ID);
 
     // El hilo 1 cambió (era el objetivo)
-    expect(resultado.find(t => t.id === 1).likes).toBe(16);
+    expect(resultado.find(t => t.id === 1)!.likes).toBe(16);
 
     // El hilo 2 NO debe haber cambiado
-    expect(resultado.find(t => t.id === 2).likes).toBe(5);
-    expect(resultado.find(t => t.id === 2).likedBy).toContain('JP');
+    expect(resultado.find(t => t.id === 2)!.likes).toBe(5);
+    expect(resultado.find(t => t.id === 2)!.likedBy).toContain('JP');
   });
 
 });

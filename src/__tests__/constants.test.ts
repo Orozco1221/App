@@ -21,7 +21,7 @@ describe('constants.js', () => {
 
   it('ACADEMY_CATEGORIES tiene 4 categorías con las propiedades obligatorias', () => {
     expect(ACADEMY_CATEGORIES).toHaveLength(4);
-    ACADEMY_CATEGORIES.forEach(cat => {
+    ACADEMY_CATEGORIES.forEach((cat: { key: string; label: string; color: string }) => {
       expect(cat).toHaveProperty('key');
       expect(cat).toHaveProperty('label');
       expect(cat).toHaveProperty('color');
