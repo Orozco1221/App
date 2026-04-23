@@ -1,4 +1,4 @@
-// src/utils/__tests__/parseEvaluation.test.js
+// src/utils/__tests__/parseEvaluation.test.ts
 
 import { parseEvaluation } from '../parseEvaluation';
 
@@ -16,9 +16,7 @@ describe('parseEvaluation()', () => {
   // ── Test 2: JSON envuelto en markdown ────────────────────────
   // Gemini a veces devuelve el JSON dentro de bloques de código
   it('limpia los bloques de markdown ```json antes de parsear', () => {
-    const input = '```json
-{"score": 5, "feedback": "Excelente"}
-```';
+    const input = '```json\n{"score": 5, "feedback": "Excelente"}\n```';
     const resultado = parseEvaluation(input);
 
     expect(resultado.score).toBe(5);

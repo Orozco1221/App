@@ -1,4 +1,4 @@
-// src/components/__tests__/ErrorBoundary.test.js
+// src/components/__tests__/ErrorBoundary.test.tsx
 // ================================================================
 // Como testeamos un ErrorBoundary?
 // Creamos un componente que lanza un error deliberadamente
@@ -14,7 +14,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import ErrorBoundary from "../ErrorBoundary";
 
 // Componente que lanza un error cuando se le dice
-const ComponenteQueExplota = ({ debeExplotar }) => {
+const ComponenteQueExplota = ({ debeExplotar }: { debeExplotar: boolean }) => {
   if (debeExplotar) {
     throw new Error("Error de prueba controlado");
   }
@@ -23,7 +23,7 @@ const ComponenteQueExplota = ({ debeExplotar }) => {
 
 // Silenciar console.error para no ensuciar la salida de tests
 // React imprime el error incluso cuando esta capturado por ErrorBoundary
-let consoleErrorSpy;
+let consoleErrorSpy: jest.SpyInstance;
 beforeEach(() => {
   consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -84,26 +84,26 @@ describe("ErrorBoundary", () => {
 
   // ── Test 4: Reintentar resetea el estado de error ───────────
   it("el boton Reintentar resetea el estado de error", () => {
-    // Usamos un componente cuyo comportamiento podemos cambiar
-    let debeExplotar = true;
+    // Usamos un wrapper que nos permite cambiar el prop tras el rerender
     const { rerender } = render(
       <ErrorBoundary>
-        <ComponenteQueExplota debeExplotar={debeExplotar} />
+        <ComponenteQueExplota debeExplotar={true} />
       </ErrorBoundary>
     );
 
     // Hay error
     expect(screen.getByRole("alert")).toBeInTheDocument();
 
-    // Hacemos click en Reintentar
-    fireEvent.click(screen.getByRole("button", { name: /reintentar/i }));
-
-    // Re-renderizamos con el componente sin error
+    // Re-renderizamos con el componente sin error ANTES de hacer click,
+    // para que al reintentar el hijo ya no lance.
     rerender(
       <ErrorBoundary>
         <ComponenteQueExplota debeExplotar={false} />
       </ErrorBoundary>
     );
+
+    // Hacemos click en Reintentar: el ErrorBoundary limpia su estado
+    fireEvent.click(screen.getByRole("button", { name: /reintentar/i }));
 
     // Ya no hay error, vemos el componente normal
     expect(
