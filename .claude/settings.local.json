@@ -1,7 +1,28 @@
 {
   "permissions": {
     "allow": [
-      "mcp__fd34c15c-b3ee-4e87-8799-89898af5d242__execute_sql"
+      "mcp__fd34c15c-b3ee-4e87-8799-89898af5d242__execute_sql",
+      "Bash(gh pr create --title 'feat: Claude Code workspace setup \\(.claude/ + CLAUDE.md\\)' --body ' *)",
+      "Bash(gh pr *)",
+      "Bash(npm test *)",
+      "Bash(gh release *)",
+      "Bash(gh release create v1.0.0 --title 'v1.0.0 — Primera version estable' --notes ' *)",
+      "Bash(npm run *)",
+      "mcp__19abb2ab-844a-4c4c-882f-9bbaca45ee4f__list_teams",
+      "mcp__19abb2ab-844a-4c4c-882f-9bbaca45ee4f__list_projects",
+      "mcp__19abb2ab-844a-4c4c-882f-9bbaca45ee4f__list_deployments",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix: add vercel.json SPA rewrite to fix client-side routing *)",
+      "Bash(git push *)",
+      "mcp__19abb2ab-844a-4c4c-882f-9bbaca45ee4f__get_deployment_build_logs",
+      "mcp__19abb2ab-844a-4c4c-882f-9bbaca45ee4f__get_project",
+      "mcp__19abb2ab-844a-4c4c-882f-9bbaca45ee4f__web_fetch_vercel_url",
+      "Bash(python -c ' *)",
+      "Bash(git commit -m 'fix\\(supabase\\): graceful fallback when env vars are missing *)",
+      "mcp__fd34c15c-b3ee-4e87-8799-89898af5d242__list_projects",
+      "mcp__fd34c15c-b3ee-4e87-8799-89898af5d242__restore_project",
+      "mcp__fd34c15c-b3ee-4e87-8799-89898af5d242__get_project",
+      "Bash(git checkout *)"
     ]
   }
 }

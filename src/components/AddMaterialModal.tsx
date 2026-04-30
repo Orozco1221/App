@@ -14,56 +14,51 @@ interface Props {
   isAiLoading: boolean;
 }
 
-const TIPOS = [
-  { key: 'video', label: 'VIDEO' },
-  { key: 'pdf',   label: 'PDF'   },
-  { key: 'ppt',   label: 'PPT'   },
-  { key: 'mp4',   label: 'MP4'   },
-] as const;
-
-type TipoKey = typeof TIPOS[number]['key'];
+// Detecta el tipo de media por extensión del fichero
+function detectMediaType(name: string): string {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  if (ext === 'pdf')                return 'pdf';
+  if (ext === 'ppt' || ext === 'pptx') return 'ppt';
+  if (ext === 'mp4')                return 'mp4';
+  if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'image';
+  if (['doc','docx'].includes(ext)) return 'doc';
+  if (['xls','xlsx'].includes(ext)) return 'excel';
+  return 'file';
+}
 
 const AddMaterialModal: React.FC<Props> = ({
   category, onClose, onAdd, suggestDescription, isAiLoading,
 }) => {
-  const [title,       setTitle]       = useState('');
-  const [desc,        setDesc]        = useState('');
-  const [url,         setUrl]         = useState('');
-  const [type,        setType]        = useState<TipoKey>('video');
-  const [file,        setFile]        = useState<File | null>(null);
-  const [fileName,    setFileName]    = useState('');
-  const [isSaving,    setIsSaving]    = useState(false);
-
-  // Auto-detecta el tipo por extensión
-  const detectType = (name: string): TipoKey => {
-    const ext = name.split('.').pop()?.toLowerCase() ?? '';
-    if (ext === 'pdf')               return 'pdf';
-    if (ext === 'ppt' || ext === 'pptx') return 'ppt';
-    if (ext === 'mp4')               return 'mp4';
-    return 'video';
-  };
+  const [title,    setTitle]    = useState('');
+  const [desc,     setDesc]     = useState('');
+  const [url,      setUrl]      = useState('');
+  const [file,     setFile]     = useState<File | null>(null);
+  const [fileName, setFileName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
     setFile(f);
     setFileName(f.name);
-    setType(detectType(f.name));
-    setUrl(''); // limpia URL manual si se sube fichero
+    setUrl('');
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    setFileName('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const mediaType = file ? detectMediaType(file.name) : 'video';
     setIsSaving(true);
     try {
-      await onAdd(category, { title, description: desc, mediaUrl: url, mediaType: type }, file);
+      await onAdd(category, { title, description: desc, mediaUrl: url, mediaType }, file);
     } finally {
       setIsSaving(false);
     }
   };
-
-  // Mostrar input URL solo para vídeo sin fichero adjunto
-  const showUrlInput = type === 'video' && !file;
 
   return (
     <div
@@ -95,27 +90,6 @@ const AddMaterialModal: React.FC<Props> = ({
         </div>
 
         <div className="space-y-4">
-
-          {/* Toggle de tipo — 4 opciones */}
-          <div
-            className="flex bg-slate-100 p-1 rounded-xl gap-0.5"
-            role="group"
-            aria-label="Tipo de material"
-          >
-            {TIPOS.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => { setType(key); setFile(null); setFileName(''); setUrl(''); }}
-                aria-pressed={type === key}
-                className={`flex-1 py-2 rounded-lg font-black text-[9px] transition-all ${
-                  type === key ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
 
           {/* Título */}
           <label htmlFor="material-title" className="sr-only">Titulo del material</label>
@@ -153,18 +127,18 @@ const AddMaterialModal: React.FC<Props> = ({
             </button>
           </div>
 
-          {/* URL — solo visible para vídeo sin fichero */}
-          {showUrlInput && (
+          {/* URL — visible solo cuando no hay fichero adjunto */}
+          {!file && (
             <input
               value={url}
               onChange={e => setUrl(e.target.value)}
               className="w-full p-4 bg-slate-50 border-none rounded-xl outline-none font-medium text-sm text-[#1A202C]"
-              placeholder="URL del vídeo (YouTube embed...)"
+              placeholder="URL del recurso (YouTube, web...)"
               type="url"
             />
           )}
 
-          {/* Upload de fichero */}
+          {/* Upload de fichero — acepta cualquier tipo */}
           <label className="flex flex-col items-center justify-center gap-2 p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors group">
             <Paperclip
               size={20}
@@ -176,15 +150,25 @@ const AddMaterialModal: React.FC<Props> = ({
                 ? <span className="text-blue-600">{fileName}</span>
                 : 'Subir archivo desde PC'}
             </span>
-            <span className="text-[9px] text-slate-400">PDF · PPT · MP4</span>
+            <span className="text-[9px] text-slate-400">PDF · PPT · MP4 · Word · Excel · Imagen…</span>
             <input
               type="file"
               className="hidden"
-              accept=".pdf,.ppt,.pptx,.mp4"
               onChange={handleFileUpload}
               aria-label="Seleccionar archivo desde tu ordenador"
             />
           </label>
+
+          {/* Botón para quitar fichero seleccionado */}
+          {file && (
+            <button
+              type="button"
+              onClick={handleRemoveFile}
+              className="w-full py-2 text-xs text-slate-400 hover:text-red-500 transition-colors"
+            >
+              Quitar archivo seleccionado
+            </button>
+          )}
 
           {/* Botón publicar */}
           <button
